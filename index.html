@@ -232,14 +232,67 @@
     return out;
   }
 
-  function encodeRound(round) {
-    return toHex(xor(utf8Encode(JSON.stringify(round))));
+  // Base62 (nur 0-9, a-z, A-Z): keine Satzzeichen, an denen Messenger einen Link abschneiden könnten.
+  var B62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  function toBase62(bytes) {
+    // führendes 0x01, damit führende Null-Bytes nicht verloren gehen
+    var n = 1n;
+    for (var i = 0; i < bytes.length; i++) n = (n << 8n) | BigInt(bytes[i]);
+    var s = "";
+    while (n > 0n) { s = B62[Number(n % 62n)] + s; n = n / 62n; }
+    return s;
   }
 
-  function decodeRound(hex) {
+  function fromBase62(str) {
+    if (typeof str !== "string" || !str || /[^0-9a-zA-Z]/.test(str)) throw new Error("kein Base62");
+    var n = 0n;
+    for (var i = 0; i < str.length; i++) n = n * 62n + BigInt(B62.indexOf(str[i]));
+    var out = [];
+    while (n > 1n) { out.unshift(Number(n & 255n)); n = n >> 8n; }
+    if (n !== 1n) throw new Error("Präfix fehlt");
+    return new Uint8Array(out);
+  }
+
+  var FS = "\x1f", NS = "\x1e"; // Feld- und Namenstrenner
+  function clean(s) { return String(s || "").replace(/[\x1e\x1f]/g, " "); }
+
+  // Version 2: kompaktes Textformat statt JSON → etwa 3x kürzerer Link
+  function encodeRound(r) {
+    if (r.p.length > 36) throw new Error("max. 36 Teilnehmer");
+    var parts = [
+      "2", clean(r.id), clean(r.n), clean(r.b), clean(r.d).replace(/-/g, ""), clean(r.h),
+      r.p.map(clean).join(NS),
+      r.a.map(function (t) { return t.toString(36); }).join("")
+    ];
+    return toBase62(xor(utf8Encode(parts.join(FS))));
+  }
+
+  function decodeV2(code) {
+    var f = utf8Decode(xor(fromBase62(code))).split(FS);
+    if (f.length !== 8 || f[0] !== "2") throw new Error("unbekanntes Format");
+    var d = f[4];
+    var round = {
+      v: 1, id: f[1], n: f[2], b: f[3],
+      d: /^\d{8}$/.test(d) ? d.slice(0, 4) + "-" + d.slice(4, 6) + "-" + d.slice(6) : "",
+      h: f[5], p: f[6].split(NS),
+      a: f[7].split("").map(function (c) { return parseInt(c, 36); })
+    };
+    validateRound(round);
+    return round;
+  }
+
+  // Version 1 (Hex + JSON) bleibt lesbar, damit schon verschickte Links weiter funktionieren
+  function decodeV1(hex) {
     var round = JSON.parse(utf8Decode(xor(fromHex(hex))));
     validateRound(round);
     return round;
+  }
+
+  function decodeRound(code) {
+    try { return decodeV2(code); } catch (e2) {
+      try { return decodeV1(code); } catch (e1) { throw new Error("Link kaputt"); }
+    }
   }
 
   function validateRound(r) {
@@ -331,9 +384,9 @@
   }
 
   function newId() {
-    var b = new Uint8Array(6);
+    var b = new Uint8Array(4);
     (root.crypto || globalThis.crypto).getRandomValues(b);
-    return toHex(b);
+    return toBase62(b).slice(-5);
   }
 
   var api = {
@@ -463,6 +516,7 @@
       var errors = [];
       var people = W.parseNames(f.p.value);
       if (people.length < 3) errors.push("Ihr braucht mindestens 3 Leute fürs Wichteln.");
+      if (people.length > 36) errors.push("Maximal 36 Leute pro Runde.");
       var ex = W.parseExclusions(f.x.value, people);
       errors = errors.concat(ex.errors);
       if (!f.n.value.trim()) errors.push("Gib der Runde einen Namen.");
