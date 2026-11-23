@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f2e22">
+<meta name="robots" content="noindex">
+<title>Wichteln 🎁</title>
+<meta property="og:title" content="Wichteln 🎁">
+<meta property="og:description" content="Tipp deinen Namen an und zieh deinen Wichtel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f2e22;
+    --bg2: #143a2b;
+    --card: #194634;
+    --line: #2a5c47;
+    --gold: #d9b45f;
+    --gold-soft: #f1dea6;
+    --red: #c4372e;
+    --red-dark: #9e2a23;
+    --text: #f6f1e4;
+    --muted: #b9c7bd;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: radial-gradient(120% 80% at 50% 0%, #1b4a37 0%, var(--bg) 55%, #0a2219 100%) fixed;
+    color: var(--text);
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) 18px max(32px, env(safe-area-inset-bottom));
+  }
+  h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 800; line-height: 1.15; margin: 0 0 8px; }
+  h1 { font-size: 32px; }
+  h2 { font-size: 24px; }
+  .gold { color: var(--gold); }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+  .center { text-align: center; }
+  .top { text-align: center; margin: 8px 0 22px; }
+  .top .star { font-size: 30px; display: block; margin-bottom: 4px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  label { display: block; font-weight: 800; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 14px; }
+  input, textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 17px; /* >= 16px verhindert Auto-Zoom in iOS Safari */
+    color: var(--text);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="date"] { min-height: 48px; }
+  textarea { resize: vertical; min-height: 96px; }
+  input:focus, textarea:focus { border-color: var(--gold); }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; min-width: 0; }
+  button, .btn {
+    display: block;
+    width: 100%;
+    min-height: 56px;
+    border: 0;
+    border-radius: 14px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    padding: 14px 16px;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  button:active, .btn:active { transform: scale(.98); }
+  .btn-red { background: var(--red); color: #fff; box-shadow: 0 4px 0 var(--red-dark); }
+  .btn-green { background: #25d366; color: #0b2b17; box-shadow: 0 4px 0 #1a9e4b; }
+  .btn-ghost { background: transparent; color: var(--text); border: 1.5px solid var(--line); }
+  .btn-gold { background: var(--gold); color: #2b2210; box-shadow: 0 4px 0 #a9873c; }
+  .stack > * + * { margin-top: 12px; }
+  .error {
+    background: rgba(196,55,46,.15);
+    border: 1px solid var(--red);
+    color: #ffd9d5;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    white-space: pre-line;
+  }
+  .linkbox {
+    word-break: break-all;
+    font-size: 13px;
+    background: var(--bg2);
+    border: 1px dashed var(--gold);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--gold-soft);
+    user-select: all;
+    -webkit-user-select: all;
+  }
+  .names { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .name-btn {
+    background: var(--card);
+    color: var(--text);
+    border: 1.5px solid var(--line);
+    font-size: 21px;
+    min-height: 64px;
+  }
+  .name-btn:active { border-color: var(--gold); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0 0; }
+  .pill {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+  .gift {
+    display: block;
+    margin: 18px auto 10px;
+    font-size: 120px;
+    line-height: 1;
+    background: none;
+    border: 0;
+    width: auto;
+    min-height: 0;
+    padding: 10px;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  .gift.shake { animation: shake .9s ease-in-out both; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes shake {
+    0% { transform: rotate(0) scale(1); }
+    15% { transform: rotate(-12deg) scale(1.05); }
+    30% { transform: rotate(12deg) scale(1.1); }
+    45% { transform: rotate(-10deg) scale(1.15); }
+    60% { transform: rotate(10deg) scale(1.2); }
+    80% { transform: rotate(0) scale(1.35); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  .reveal { animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .target {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 800;
+    font-size: 44px;
+    color: var(--gold);
+    margin: 4px 0 6px;
+    word-break: break-word;
+  }
+  .note {
+    background: rgba(217,180,95,.12);
+    border: 1px solid rgba(217,180,95,.45);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    white-space: pre-line;
+  }
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .confetti span {
+    position: absolute;
+    top: -20px;
+    font-size: 22px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); } }
+  .hidden { display: none !important; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; }
+  @media (prefers-reduced-motion: reduce) {
+    .gift, .gift.shake, .reveal, .confetti span { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<main id="app">
+  <noscript><p class="card">Bitte JavaScript aktivieren, sonst klappt das Wichteln nicht.</p></noscript>
+</main>
+
+<!-- Kernlogik ohne DOM-Zugriff (wird auch in Node getestet) -->
+<script id="core">
+(function (root) {
+  "use strict";
+
+  // Verschleierung, keine Verschlüsselung: Namen sollen im Link nur nicht im Klartext stehen.
+  var KEY = "Tannenbaum*Gluehwein*Lebkuchen*2026";
+  var MAX_TRIES = 20000;
+
+  function utf8Encode(str) { return new TextEncoder().encode(str); }
+  function utf8Decode(bytes) { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+
+  function xor(bytes) {
+    var key = utf8Encode(KEY);
+    var out = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key[i % key.length];
+    return out;
+  }
+
+  function toHex(bytes) {
+    var s = "";
+    for (var i = 0; i < bytes.length; i++) s += (bytes[i] < 16 ? "0" : "") + bytes[i].toString(16);
+    return s;
+  }
+
+  function fromHex(hex) {
+    if (typeof hex !== "string" || hex.length === 0 || hex.length % 2 !== 0 || /[^0-9a-f]/i.test(hex)) {
+      throw new Error("kein gültiger Hex-String");
+    }
+    var out = new Uint8Array(hex.length / 2);
+    for (var i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return out;
+  }
+
+  function encodeRound(round) {
+    return toHex(xor(utf8Encode(JSON.stringify(round))));
+  }
+
+  function decodeRound(hex) {
+    var round = JSON.parse(utf8Decode(xor(fromHex(hex))));
+    validateRound(round);
+    return round;
+  }
+
+  function validateRound(r) {
+    if (!r || typeof r !== "object") throw new Error("Runde fehlt");
+    if (r.v !== 1) throw new Error("unbekannte Version");
+    if (typeof r.id !== "string" || !r.id) throw new Error("ID fehlt");
+    if (!Array.isArray(r.p) || r.p.length < 3) throw new Error("zu wenige Teilnehmer");
+    if (!Array.isArray(r.a) || r.a.length !== r.p.length) throw new Error("Zuordnung kaputt");
+    var seen = {};
+    for (var i = 0; i < r.a.length; i++) {
+      var t = r.a[i];
+      if (typeof t !== "number" || t < 0 || t >= r.p.length || t === i || seen[t]) throw new Error("Zuordnung kaputt");
+      seen[t] = true;
+    }
+    for (var j = 0; j < r.p.length; j++) if (typeof r.p[j] !== "string" || !r.p[j]) throw new Error("Name kaputt");
+  }
+
+  function norm(name) { return name.trim().replace(/\s+/g, " ").toLocaleLowerCase("de-DE"); }
+
+  function parseNames(text) {
+    var out = [], seen = {};
+    text.split(/\r?\n/).forEach(function (line) {
+      var n = line.trim().replace(/\s+/g, " ");
+      if (!n) return;
+      var k = norm(n);
+      if (seen[k]) return;
+      seen[k] = true;
+      out.push(n);
+    });
+    return out;
+  }
+
+  // Gibt { pairs: [[i,j],...], errors: [...] } zurück. Zeilenformat: "A + B"
+  function parseExclusions(text, names) {
+    var index = {};
+    names.forEach(function (n, i) { index[norm(n)] = i; });
+    var pairs = [], errors = [];
+    text.split(/\r?\n/).forEach(function (line) {
+      var raw = line.trim();
+      if (!raw) return;
+      var parts = raw.split("+");
+      if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
+        errors.push("„" + raw + "“ verstehe ich nicht. Bitte so schreiben: Name + Name");
+        return;
+      }
+      var a = parts[0].trim(), b = parts[1].trim();
+      var ia = index[norm(a)], ib = index[norm(b)];
+      var missing = [];
+      if (ia === undefined) missing.push(a);
+      if (ib === undefined) missing.push(b);
+      if (missing.length) {
+        errors.push("„" + missing.join("“ und „") + "“ steht nicht in der Teilnehmerliste.");
+        return;
+      }
+      if (ia === ib) { errors.push("„" + raw + "“: Das ist zweimal dieselbe Person."); return; }
+      pairs.push([ia, ib]);
+    });
+    return { pairs: pairs, errors: errors };
+  }
+
+  function randomInt(max, rng) {
+    if (rng) return Math.floor(rng() * max);
+    var c = (root.crypto || (typeof globalThis !== "undefined" && globalThis.crypto));
+    // Ablehnungsverfahren gegen Modulo-Verzerrung
+    var buf = new Uint32Array(1), limit = Math.floor(0x100000000 / max) * max;
+    do { c.getRandomValues(buf); } while (buf[0] >= limit);
+    return buf[0] % max;
+  }
+
+  // a[i] = Index der Person, die i beschenkt. null, wenn nach MAX_TRIES nichts passt.
+  function draw(n, exclusionPairs, rng) {
+    var blocked = [];
+    for (var i = 0; i < n; i++) blocked.push({});
+    exclusionPairs.forEach(function (p) { blocked[p[0]][p[1]] = true; blocked[p[1]][p[0]] = true; });
+    for (var tries = 0; tries < MAX_TRIES; tries++) {
+      var perm = [];
+      for (var k = 0; k < n; k++) perm.push(k);
+      for (var m = n - 1; m > 0; m--) {
+        var r = randomInt(m + 1, rng);
+        var tmp = perm[m]; perm[m] = perm[r]; perm[r] = tmp;
+      }
+      var ok = true;
+      for (var g = 0; g < n; g++) {
+        if (perm[g] === g || blocked[g][perm[g]]) { ok = false; break; }
+      }
+      if (ok) return perm;
+    }
+    return null;
+  }
+
+  function newId() {
+    var b = new Uint8Array(6);
+    (root.crypto || globalThis.crypto).getRandomValues(b);
+    return toHex(b);
+  }
+
+  var api = {
+    encodeRound: encodeRound, decodeRound: decodeRound, parseNames: parseNames,
+    parseExclusions: parseExclusions, draw: draw, newId: newId, MAX_TRIES: MAX_TRIES
+  };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  root.Wichtel = api;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+
+<!-- Oberfläche -->
+<script>
+(function () {
+  "use strict";
+  var W = window.Wichtel;
+  var app = document.getElementById("app");
+  var STORE_PREFIX = "wichteln:";
+
+  function store(key, value) {
+    try {
+      if (value === undefined) return localStorage.getItem(STORE_PREFIX + key);
+      localStorage.setItem(STORE_PREFIX + key, value);
+    } catch (e) { /* privater Modus o. Ä.: dann eben ohne Merken */ }
+    return null;
+  }
+
+  // Kleiner DOM-Helfer. Texte immer über textContent, nie innerHTML mit Nutzereingaben.
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else if (k === "class") node.className = attrs[k];
+      else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return node;
+  }
+
+  function render(nodes) {
+    app.textContent = "";
+    nodes.forEach(function (n) { if (n) app.appendChild(n); });
+    window.scrollTo(0, 0);
+  }
+
+  function header(title, sub) {
+    return el("div", { class: "top" }, [
+      el("span", { class: "star", text: "✨🎄✨" }),
+      el("h1", { text: title }),
+      sub ? el("div", { class: "muted", text: sub }) : null
+    ]);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!m) return iso;
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    try {
+      return d.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    } catch (e) { return m[3] + "." + m[2] + "." + m[1]; }
+  }
+
+  function baseUrl() { return location.href.split("#")[0]; }
+
+  function metaPills(r) {
+    var pills = [];
+    if (r.b) pills.push(el("span", { class: "pill", text: "💶 " + r.b }));
+    if (r.d) pills.push(el("span", { class: "pill", text: "📅 " + formatDate(r.d) }));
+    return pills.length ? el("div", { class: "meta" }, pills) : null;
+  }
+
+  function inviteText(r, link) {
+    var lines = ["🎁 " + r.n + " 🎄", "", "Der Wichtel-Topf ist gefüllt! Öffne den Link, tipp auf deinen Namen und zieh deinen Wichtel:", link, ""];
+    if (r.b) lines.push("💶 Budget: " + r.b);
+    if (r.d) lines.push("📅 Bescherung: " + formatDate(r.d));
+    lines.push("", "Bitte nur deinen eigenen Namen antippen – und nichts verraten 🤫");
+    return lines.join("\n");
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+  function legacyCopy(text) {
+    var ta = el("textarea", { readonly: "" });
+    ta.value = text;
+    ta.style.position = "fixed"; ta.style.top = "-1000px";
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  // ---------- Ansicht A: Runde anlegen ----------
+  function viewCreate() {
+    var f = {
+      n: el("input", { id: "f-name", type: "text", value: "Familienwichteln 2026", autocomplete: "off" }),
+      b: el("input", { id: "f-budget", type: "text", placeholder: "z. B. 25 €", autocomplete: "off" }),
+      d: el("input", { id: "f-date", type: "date" }),
+      p: el("textarea", { id: "f-people", rows: "7", autocomplete: "off", autocapitalize: "words" }),
+      x: el("textarea", { id: "f-excl", rows: "4", autocomplete: "off", autocapitalize: "words" }),
+      h: el("textarea", { id: "f-hint", rows: "3", placeholder: "z. B. Bitte etwas Selbstgemachtes 😊" })
+    };
+    f.p.value = "Florian\nPia\nDennis\nDajana\nMama\nPapa";
+    f.x.value = "Florian + Pia\nDennis + Dajana\nMama + Papa";
+
+    var errorBox = el("div", { class: "error hidden", id: "create-error", role: "alert" });
+
+    var last = store("lastLink");
+    var lastBox = null;
+    if (last) {
+      lastBox = el("div", { class: "card" }, [
+        el("div", { class: "small muted", text: "Du hast auf diesem Gerät schon eine Runde erstellt." }),
+        el("button", { class: "btn-ghost", style: "margin-top:10px", text: "Letzten Link wieder anzeigen", onclick: function () {
+          try { showShare(W.decodeRound(last.split("#")[1]), last); } catch (e) { store("lastLink", ""); viewCreate(); }
+        } })
+      ]);
+    }
+
+    function submit() {
+      var errors = [];
+      var people = W.parseNames(f.p.value);
+      if (people.length < 3) errors.push("Ihr braucht mindestens 3 Leute fürs Wichteln.");
+      var ex = W.parseExclusions(f.x.value, people);
+      errors = errors.concat(ex.errors);
+      if (!f.n.value.trim()) errors.push("Gib der Runde einen Namen.");
+      if (errors.length) { errorBox.textContent = errors.join("\n"); errorBox.classList.remove("hidden"); errorBox.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+
+      var a = W.draw(people.length, ex.pairs);
+      if (!a) {
+        errorBox.textContent = "Mit diesen Ausschlüssen geht keine Auslosung auf (" + W.MAX_TRIES.toLocaleString("de-DE") + " Versuche). Streich einen Ausschluss oder nimm noch jemanden dazu.";
+        errorBox.classList.remove("hidden");
+        return;
+      }
+      var round = { v: 1, id: W.newId(), n: f.n.value.trim(), b: f.b.value.trim(), d: f.d.value, h: f.h.value.trim(), p: people, a: a };
+      var link = baseUrl() + "#" + W.encodeRound(round);
+      store("lastLink", link);
+      showShare(round, link);
+    }
+
+    render([
+      header("Wichteln 🎁", "Runde anlegen – du siehst dabei nie, wer wen zieht."),
+      lastBox,
+      el("div", { class: "card" }, [
+        el("label", { for: "f-name", text: "Name der Runde" }), f.n,
+        el("div", { class: "row" }, [
+          el("div", {}, [el("label", { for: "f-budget", text: "Budget" }), f.b]),
+          el("div", {}, [el("label", { for: "f-date", text: "Bescherung" }), f.d])
+        ]),
+        el("label", { for: "f-people" }, ["Wer macht mit? ", el("span", { class: "hint", text: "(ein Name pro Zeile)" })]), f.p,
+        el("label", { for: "f-excl" }, ["Wer soll sich nicht ziehen? ", el("span", { class: "hint", text: "(„A + B“, ein Paar pro Zeile, gilt in beide Richtungen)" })]), f.x,
+        el("label", { for: "f-hint" }, ["Hinweis an alle ", el("span", { class: "hint", text: "(optional)" })]), f.h,
+        errorBox
+      ]),
+      el("button", { class: "btn-red", id: "btn-create", text: "Runde erstellen 🎲", onclick: submit }),
+      el("footer", { text: "Alles läuft in deinem Browser. Nichts wird irgendwo gespeichert." })
+    ]);
+  }
+
+  function showShare(round, link) {
+    var text = inviteText(round, link);
+    var copyBtn = el("button", { class: "btn-ghost", id: "btn-copy", text: "Link kopieren 📋" });
+    copyBtn.addEventListener("click", function () {
+      copyText(link).then(function (ok) {
+        copyBtn.textContent = ok ? "Kopiert ✅" : "Ging nicht – bitte den Link oben gedrückt halten";
+        setTimeout(function () { copyBtn.textContent = "Link kopieren 📋"; }, 2500);
+      });
+    });
+    render([
+      header("Fertig ausgelost! 🎉", round.n),
+      el("div", { class: "card stack" }, [
+        el("div", { text: "Die Paarungen stecken versteckt im Link. Du siehst sie nicht – versprochen." }),
+        el("div", { class: "linkbox", id: "group-link", text: link }),
+        el("a", { class: "btn btn-green", id: "btn-wa", href: "https://wa.me/?text=" + encodeURIComponent(text), target: "_blank", rel: "noopener", text: "In WhatsApp-Gruppe teilen 💬" }),
+        copyBtn
+      ]),
+      el("div", { class: "note small" }, [
+        "Wichtig: Schick genau diesen Link. Wenn du neu auslost, entsteht ein neuer Link mit neuen Paarungen – dann muss jeder nochmal ziehen."
+      ]),
+      el("button", { class: "btn-ghost", style: "margin-top:16px", text: "Zurück", onclick: viewCreate })
+    ]);
+  }
+
+  // ---------- Ansicht B: Ziehen ----------
+  function viewError() {
+    render([
+      header("Hoppla 🙈"),
+      el("div", { class: "card stack center" }, [
+        el("div", { text: "Dieser Wichtel-Link funktioniert leider nicht." }),
+        el("div", { class: "muted small", text: "Vielleicht wurde er beim Kopieren abgeschnitten. Frag am besten nochmal in der Gruppe nach dem Link." })
+      ])
+    ]);
+  }
+
+  function viewPick(r) {
+    var buttons = r.p.map(function (name, i) {
+      return el("button", { class: "name-btn", "data-i": String(i), text: name, onclick: function () { viewConfirm(r, i); } });
+    });
+    render([
+      header(r.n, "Wer bist du?"),
+      metaPills(r),
+      el("div", { class: "names", style: "margin-top:20px" }, buttons),
+      el("div", { class: "note small", style: "margin-top:20px" }, ["🤝 Das läuft auf Ehrenwort: Bitte nur deinen eigenen Namen antippen und nur einmal ziehen."])
+    ]);
+  }
+
+  function viewConfirm(r, i) {
+    render([
+      header("Bist du wirklich " + r.p[i] + "?"),
+      el("div", { class: "card stack" }, [
+        el("div", { class: "center muted", text: "Danach ist dieses Handy auf dich festgelegt." }),
+        el("button", { class: "btn-red", id: "btn-yes", text: "Ja, ich bin " + r.p[i], onclick: function () { viewGift(r, i); } }),
+        el("button", { class: "btn-ghost", text: "Nee, zurück", onclick: function () { viewPick(r); } })
+      ])
+    ]);
+  }
+
+  function viewGift(r, i) {
+    var gift = el("button", { class: "gift", id: "btn-gift", "aria-label": "Geschenk öffnen", text: "🎁" });
+    var opened = false;
+    gift.addEventListener("click", function () {
+      if (opened) return;
+      opened = true;
+      store("round:" + r.id, String(i));
+      gift.classList.add("shake");
+      setTimeout(function () { viewResult(r, i, true); }, 900);
+    });
+    render([
+      header("Hallo " + r.p[i] + "! 👋", "Tipp aufs Geschenk"),
+      gift
+    ]);
+  }
+
+  function confetti() {
+    var box = el("div", { class: "confetti", "aria-hidden": "true" });
+    var items = ["✨", "❄️", "⭐", "🎉", "❄️"];
+    for (var k = 0; k < 26; k++) {
+      var s = el("span", { text: items[k % items.length] });
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.animationDuration = (2.2 + Math.random() * 2) + "s";
+      s.style.animationDelay = (Math.random() * .6) + "s";
+      box.appendChild(s);
+    }
+    document.body.appendChild(box);
+    setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 5000);
+  }
+
+  function viewResult(r, i, fresh) {
+    var target = r.p[r.a[i]];
+    render([
+      header(r.n, "Hallo " + r.p[i] + "!"),
+      el("div", { class: "card center" + (fresh ? " reveal" : ""), id: "result" }, [
+        el("div", { class: "muted", text: "Du beschenkst:" }),
+        el("div", { class: "target", id: "target", text: target }),
+        metaPills(r),
+        r.h ? el("div", { class: "note", text: "📝 " + r.h }) : null
+      ]),
+      el("div", { class: "card stack small" }, [
+        el("div", { text: "📸 Mach am besten gleich einen Screenshot." }),
+        el("div", { text: "🤫 Nicht verraten – auch nicht in der Gruppe!" })
+      ])
+    ]);
+    if (fresh) confetti();
+  }
+
+  function route() {
+    var hash = location.hash.replace(/^#/, "");
+    if (!hash) return viewCreate();
+    var r;
+    try { r = W.decodeRound(hash); } catch (e) { return viewError(); }
+    var saved = store("round:" + r.id);
+    var idx = saved === null ? NaN : parseInt(saved, 10);
+    if (!isNaN(idx) && idx >= 0 && idx < r.p.length) return viewResult(r, idx, false);
+    viewPick(r);
+  }
+
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+</body>
+</html>
